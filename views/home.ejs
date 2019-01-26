@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+.twits{
+    border: 2px solid gray;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    width: 60%;
+    padding: 20px;
+}
+</style>
+<body>
+   <% if(user){ %>
+    <strong>UserName: <%= user.username %></strong><br>
+    <strong>DisplayName: <%= user.displayName %></strong><br>
+    <img src="<%= user.photos[0].value %>">
+
+   <% if(tweets){ %>
+
+       <% tweets.forEach(function(e){ %>
+        <div class="twits">
+        <img src="<%= e.user.profile_image_url %>">
+            <h3><%= e.text %></h3>
+            <%= e.text.split(' ')[e.text.length-1] %>
+            <%- e.source %><br>
+           
+           <h5>liked by  <%= e.favorite_count %>  people</h5>
+            <h5>re-twitted by <%= e.retweet_count %>  people</h5>
+        </div>
+      <%  }); %>
+
+  <%  } %>
+    <% } else{ %>
+        <a href="/twitter/login">login with twitter</a>
+
+    <% } %>
+</body>
+</html>
