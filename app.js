@@ -10,6 +10,7 @@ const path = require('path');
 const User = require('./modules/user/UserSchema');
 const twitter = require('twitter');
 const util = require('util');
+const uuid = require("uuid/v4");
 
 passport.use(new Strategy({
     consumerKey: '9QuyC9MW1YJw9XrpNtwTYD1Y0',
@@ -17,9 +18,16 @@ passport.use(new Strategy({
     callbackURL: "http://localhost:8000/twitter/return"
   },
   function(token, tokenSecret, profile, cb) {
-    // User.findOrCreate({ twitterId: profile.id }, function (err, user) {
-      return cb(null, profile);
-    // });
+   
+    let user = new User();
+
+    user.save().then(function(data){
+       if(data){
+        return cb(null, profile);
+       }
+    });
+      
+  
   }
 ));
 
@@ -67,15 +75,39 @@ app.get('/', (req, res)=>{
                 res.render('home',{user: req.user, tweets: null});
                 return;
             } else{
-            console.log('tweets are '+util.inspect(tweets[0]));  // The favorites.
-            console.log('response is '+response);  // Raw response object.
-
+            // console.log('tweets are '+util.inspect(tweets[0]));  // The favorites.
+            // console.log('response is '+response);  // Raw response object.
+          
             res.render('home',{user: req.user, tweets: tweets});
             }
           });
 
 } catch(e){console.log(e)}
    
+});
+
+
+
+const sdk = (bucketName, key, filename)=>{
+  return new Promise((resolve, reject)=>{
+  var request = require('request');
+  request(`http://64.110.130.161:8081/api/v1/file/url/${bucketName}/${key}/${filename}`, function (error, response, body) {
+  // console.log('error:', error); 
+  // console.log('statusCode:', response && response.statusCode); 
+  // console.log('body:', body);
+   resolve(body); 
+  });
+});
+
+}
+
+let bucketName = "shopup2";
+let key = "15a5cp5di75l42.8cp2bo31k00h6ar39e37l35@$ar$4u$5m$cs$ca$4n$a.$5c$1o$2m$b$";
+app.get("/url", async (req, res, next)=>{
+  let filename = uuid();
+  console.log(uuid());
+  let body = await sdk(bucketName, key, filename);
+   res.json(body);
 });
 
 app.get('/twitter/login', passport.authenticate('twitter'));
@@ -85,5 +117,8 @@ app.get('/twitter/return', passport.authenticate('twitter',{
 (req, res)=>{
     res.redirect('/');
 });
+
+
+
 
 module.exports = app;

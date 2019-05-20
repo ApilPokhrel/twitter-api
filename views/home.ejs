@@ -1,44 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Document</title>
-</head>
-<style>
-.twits{
-    border: 2px solid gray;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    width: 60%;
-    padding: 20px;
-}
-</style>
-<body>
-   <% if(user){ %>
-    <strong>UserName: <%= user.username %></strong><br>
-    <strong>DisplayName: <%= user.displayName %></strong><br>
-    <img src="<%= user.photos[0].value %>">
+  </head>
+  <style>
+    .twits {
+      border: 2px solid gray;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      width: 60%;
+      padding: 20px;
+    }
+  </style>
+  <body>
+    <% if(user){ %>
+    <strong>UserName: <%= user.username %></strong><br />
+    <strong>DisplayName: <%= user.displayName %></strong><br />
+    <img src="<%= user.photos[0].value %>" />
 
-   <% if(tweets){ %>
+    <% if(tweets){ %> <% tweets.forEach(function(e){ %>
+    <div class="twits">
+      <img src="<%= e.user.profile_image_url %>" />
+      <h3><%= e.text %></h3>
+      <%= e.text.split(' ')[e.text.length-1] %> <%- e.source %><br />
 
-       <% tweets.forEach(function(e){ %>
-        <div class="twits">
-        <img src="<%= e.user.profile_image_url %>">
-            <h3><%= e.text %></h3>
-            <%= e.text.split(' ')[e.text.length-1] %>
-            <%- e.source %><br>
-           
-           <h5>liked by  <%= e.favorite_count %>  people</h5>
-            <h5>re-twitted by <%= e.retweet_count %>  people</h5>
-        </div>
-      <%  }); %>
-
-  <%  } %>
-    <% } else{ %>
-        <a href="/twitter/login">login with twitter</a>
+      <h5>liked by <%= e.favorite_count %> people</h5>
+      <h5>re-twitted by <%= e.retweet_count %> people</h5>
+    </div>
+    <% }); %> <% } %> <% } else{ %>
+    <a href="/twitter/login">login with twitter</a>
 
     <% } %>
-</body>
+    <form id="test" method="POST" enctype="multipart/form-data">
+      <input type="file" id="filein" name="file" multiple />
+      <button type="submit">upload</button>
+    </form>
+  </body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $("#filein").on("change", uploadFile);
+    });
+
+    function uploadFile() {
+      $.ajax({
+            url:'/url',
+            method: "GET"
+        }).done(d => {
+          console.log("url is ", d)
+        $.ajax({
+        url: `http://64.110.130.161:8081/file/${d}`,
+        type: "POST",
+        data: new FormData($("#test")[0]),
+        enctype: "multipart/form-data",
+        processData: false,
+        contentType: false,
+        cache: false,
+        success: function(d) {
+          alert("File succesfully uploaded", d);
+        },
+        error: function(e) {
+          // Handle upload error
+          alert(e.responseText);
+        }
+      });
+            })
+        .fail(e => console.log(e));
+    } // func
+
+
+  
+  </script>
 </html>
